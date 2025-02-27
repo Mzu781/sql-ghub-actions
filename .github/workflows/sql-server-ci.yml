@@ -8,38 +8,36 @@ on:
 
 jobs:
   sql-check:
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-22.04
 
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        options: --health-cmd="curl --silent --fail localhost:1433" --health-interval=10s --health-timeout=5s --health-retries=5
+        ports:
+          - 1433:1433
+        env:
+          SA_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+          ACCEPT_EULA: Y
+          
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https software-properties-common libldap-2.5-0
-
-      - name: Install SQL Server
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-          sudo add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list)"
-          sudo apt-get update
-          sudo apt-get install -y mssql-server
-
       - name: Install SQL Tools
         run: |
-          sudo add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
           sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
 
-      - name: Start SQL Server
+      - name: Wait for SQL Server to be ready
         run: |
-          sudo systemctl start mssql-server
-          # Check if SQL Server started successfully
-          sudo systemctl status mssql-server --no-pager
-          sleep 10  # Give SQL Server time to start
+          while ! nc -zv localhost 1433; do
+            echo "Waiting for SQL Server to start..."
+            sleep 10
+          done
+          echo "SQL Server is ready."
 
       - name: Run SQL Scripts
         env:
@@ -47,9 +45,7 @@ jobs:
         run: |
           for file in *.sql; do
             echo "Running $file"
-            # Explicitly use localhost and port 1433 for connection
             sqlcmd -S localhost,1433 -U sa -P "$SA_PASSWORD" -d master -i "$file"
-            # If the SQL script has errors, exit with non-zero status to fail the workflow
             if [ $? -ne 0 ]; then
               echo "SQL script $file failed"
               exit 1
