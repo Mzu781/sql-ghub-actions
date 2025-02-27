@@ -8,49 +8,42 @@ on:
 
 jobs:
   sql-check:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04  # Ensure you're using Ubuntu 22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SQL Server and Tools
+      - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl apt-transport-https gnupg2
-          
-          # Add Microsoft repository
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc > /dev/null
-          sudo add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
-          sudo apt-get update
+          sudo apt-get install -y curl apt-transport-https software-properties-common libldap-2.5-0
 
-          # Install required dependencies
-          sudo apt-get install -y libldap-common || sudo apt-get install -y libldap-2.4-2
-          
-          # Install SQL Server and tools
+      - name: Install SQL Server
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list)"
+          sudo apt-get update
           sudo apt-get install -y mssql-server
+
+      - name: Install SQL Tools
+        run: |
+          sudo add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
+          sudo apt-get update
           sudo apt-get install -y mssql-tools unixodbc-dev
-          
-          # Add tools to PATH
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
 
       - name: Start SQL Server
         run: |
           sudo systemctl start mssql-server
-          sleep 20  # Wait longer to ensure SQL Server starts
-          sudo systemctl status mssql-server || true
+          sleep 10 # Give SQL Server time to start
 
       - name: Run SQL Scripts
         env:
           SA_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
         run: |
-          if [[ -z "$SA_PASSWORD" ]]; then
-            echo "SQL_SERVER_PASSWORD secret is missing!"
-            exit 1
-          fi
-          
           for file in *.sql; do
             echo "Running $file"
-            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i $file || echo "Syntax error in $file"
+            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i $file || echo "Syntax error in $file"
           done
