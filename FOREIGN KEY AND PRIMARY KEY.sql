@@ -1,6 +1,8 @@
 CREATE DATABASE Store;
+GO
 
 USE Store;
+GO
 
 -- THIS COMMAND CREATES TABLE
 -- IT DEFINES THE DATABASE MEANING IT DEFINES DATA TYPES OF THE ATTRIBUTES AND
@@ -20,6 +22,7 @@ CREATE TABLE Customers (
     -- YOU CAN USE AN EMAIL, EMAIL ARE UNIQUE IN EACH PERSON
     PRIMARY KEY (CustomerID)
 );
+GO
 
 -- THIS IS THE SECOND TABLE WHICH IS THE CHILD OF THE CUSTOMER TABLE
 -- THIS TABLE IS GOING HAVE A NEW KEY TYPE WHICH IS FOREIGN KEY THAT REFERENCES TO CUSTOMER TABLE,
@@ -35,9 +38,12 @@ CREATE TABLE Orders (
     -- THIS TABLE I DON'T HAVE PRIMARY KEY
     -- I WILL USE ALTER TO INSERT IT
 );
+GO
 
+-- Alter table to add primary key after creation
 ALTER TABLE Orders
 ADD PRIMARY KEY (OrdersID);
+GO
 
 CREATE TABLE Orders_Items (
     order_item_id INT IDENTITY (1, 1) PRIMARY KEY,
@@ -45,12 +51,29 @@ CREATE TABLE Orders_Items (
     order_date DATE NOT NULL,
     FOREIGN KEY (order_id) REFERENCES Orders (OrdersID)
 );
+GO
 
+-- Alter table to add additional columns and constraints
 ALTER TABLE Orders_Items
 ADD item_id INT NOT NULL;
+GO
 
 ALTER TABLE Orders_Items
-ADD quantity INT NOT NULL CHECK (quantity > 0);
+ADD quantity INT NOT NULL CHECK (quantity > 0);  -- Ensuring quantity is positive
+GO
 
 ALTER TABLE Orders_Items
 ADD unit_price DECIMAL(10,2) NOT NULL;
+GO
+
+-- Sample SELECT statement to retrieve all customers
+SELECT * FROM Customers;
+GO
+
+-- Sample SELECT statement to retrieve all orders
+SELECT * FROM Orders;
+GO
+
+-- Sample SELECT statement to retrieve all order items
+SELECT * FROM Orders_Items;
+GO
