@@ -39,7 +39,7 @@ FOREIGN KEY(CustomerID) REFERENCES Customers(CustomerID),
 ALTER TABLE Orders ADD PRIMARY KEY(OrdersID)
 
 CREATE TABLE Orders_Items(
-order_item_id INT IDENTITY(1,1) PRIMARY KEY,
+order_item_id INT IDENTITY(1,1) PRIMARY KEY
 order_id INT NOT NULL,
 order_date DATE NOT NULL
 FOREIGN KEY(order_id) REFERENCES Orders(OrdersID)
