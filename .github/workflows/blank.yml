@@ -32,4 +32,4 @@ jobs:
       # Run SQLFluff to lint SQL files in the root directory (adjusting for the location of your files)
       - name: Lint SQL files in root directory
         run: |
-          sqlfluff lint "./*.sql" --dialect tsql
+          sqlfluff lint "*.sql" --dialect tsql
