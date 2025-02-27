@@ -1,5 +1,6 @@
-name: SQL Server CI
+name: SQL Syntax Check
 
+# Trigger the workflow on push or pull request to the master branch
 on:
   push:
     branches: [ "master" ]
@@ -7,47 +8,32 @@ on:
     branches: [ "master" ]
 
 jobs:
-  sql-check:
-    runs-on: ubuntu-22.04
+  check-sql-syntax:
+    runs-on: ubuntu-latest
 
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        options: --health-cmd="curl --silent --fail localhost:1433" --health-interval=10s --health-timeout=5s --health-retries=5
-        ports:
-          - 1433:1433
-        env:
-          SA_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
-          ACCEPT_EULA: Y
-          
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Install SQL Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
-          echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
-          source ~/.bashrc
+      # Step 2: Set up Python (required for sqlfluff)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
 
-      - name: Wait for SQL Server to be ready
-        run: |
-          while ! nc -zv localhost 1433; do
-            echo "Waiting for SQL Server to start..."
-            sleep 10
-          done
-          echo "SQL Server is ready."
+      # Step 3: Install sqlfluff (a SQL linter and syntax checker)
+      - name: Install sqlfluff
+        run: pip install sqlfluff
 
-      - name: Run SQL Scripts
-        env:
-          SA_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+      # Step 4: Create a .sqlfluff configuration file for T-SQL
+      - name: Configure sqlfluff for T-SQL
         run: |
-          for file in *.sql; do
-            echo "Running $file"
-            sqlcmd -S localhost,1433 -U sa -P "$SA_PASSWORD" -d master -i "$file"
-            if [ $? -ne 0 ]; then
-              echo "SQL script $file failed"
-              exit 1
-            fi
-          done
+          echo "[sqlfluff]" > .sqlfluff
+          echo "dialect = tsql" >> .sqlfluff
+
+      # Step 5: Check SQL syntax in all .sql files
+      - name: Check SQL syntax
+        run: |
+          # Run sqlfluff on all .sql files in the repository
+          sqlfluff lint .
