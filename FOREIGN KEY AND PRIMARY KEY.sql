@@ -46,5 +46,4 @@ FOREIGN KEY(order_id) REFERENCES Orders(OrdersID)
 );
 
 ALTER TABLE orders_Items ADD  item_id INT NOT NULL;
-
-SELECT * FROM Orders_Items
+ALTER TABLE orders_Items ADD quantity INT NOT NULL CHECK (quantity > 0);
