@@ -26,17 +26,10 @@ jobs:
       - name: Install sqlfluff
         run: pip install sqlfluff
 
-      # Step 4: Create a .sqlfluff configuration file for T-SQL
-      - name: Configure sqlfluff for T-SQL
-        run: |
-          echo "[sqlfluff]" > .sqlfluff
-          echo "dialect = tsql" >> .sqlfluff
-          echo "max_line_length = 120" >> .sqlfluff
-          echo "[sqlfluff:rules:capitalisation]" >> .sqlfluff
-          echo "identifiers = False" >> .sqlfluff
-
-      # Step 5: Check SQL syntax in all .sql files
+      # Step 4: Check SQL syntax in all .sql files
       - name: Check SQL syntax
         run: |
           # Run sqlfluff on all .sql files in the repository
           sqlfluff lint .
+          # If sqlfluff finds errors, it will exit with a non-zero code
+          # GitHub Actions will mark the workflow as failed
