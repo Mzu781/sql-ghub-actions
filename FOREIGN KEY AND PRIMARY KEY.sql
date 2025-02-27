@@ -1,79 +1,46 @@
 CREATE DATABASE Store;
-GO
 
 USE Store;
-GO
 
 -- THIS COMMAND CREATES TABLE
 -- IT DEFINES THE DATABASE MEANING IT DEFINES DATA TYPES OF THE ATTRIBUTES AND
 -- CONTRAINTS THAT MUST BE MET BY THE ENTITY OR BY THE TABLE
 CREATE TABLE Customers (
-    CustomerID INT IDENTITY (1, 1),
+    CustomerID INT IDENTITY(1, 1),
     FirstName VARCHAR(50) NOT NULL,
     LastName VARCHAR(50) NOT NULL,
     Email VARCHAR(50) NOT NULL UNIQUE,
     City VARCHAR(50) NOT NULL,
-    -- THE BELOW LINE IS A PRIMARY KEY OF THE TABLE, EACH ROW OR RECORD WILL BE DETERMINE BY IT'S OWN
-    -- KEY THAT IS DIFFERENT FROM THE OTHER RECORD
-    -- RECORD 1: CustomerID = 1 | FirstName = 'Anele' | LastName = 'Nzimakhwe' | Email = 'exampl1@gmail.com' | City = 'Bizana'
-    -- RECORD 2: CustomerID = 2 | FirstName = 'James' | LastName = 'Rogrigez' | Email = 'example2@gmail.com' | City = 'Johannesburg'
-    -- IF YOU SEE ABOVE THE TWO RECORDS ID'S ARE DIFFERENT OR UNIQUE FROM THE OTHER
-    -- IT'S NOT A MUST FOR THE PRIMARY KEY TO BE A NUMBER YOU CAN USE ANYTHING THAT UNIQUELY DEFINES A RECORD FROM THE OTHER
-    -- YOU CAN USE AN EMAIL, EMAIL ARE UNIQUE IN EACH PERSON
     PRIMARY KEY (CustomerID)
 );
-GO
 
 -- THIS IS THE SECOND TABLE WHICH IS THE CHILD OF THE CUSTOMER TABLE
 -- THIS TABLE IS GOING HAVE A NEW KEY TYPE WHICH IS FOREIGN KEY THAT REFERENCES TO CUSTOMER TABLE,
 -- REFERENCING USING CUSTOMERID THAT IS IN THE CUSTOMER TABLE
 -- THIS TABLE MUST HAVE A ATTRIBUTE THAT IS GOING TO STORE THE PRIMARY KEY ITS PARENT WHICH IS THE CUSTOMER ID
 CREATE TABLE Orders (
-    OrdersID INT IDENTITY (1, 1),
+    OrdersID INT IDENTITY(1, 1),
     CustomerID INT NOT NULL,
     OrderDate DATE NOT NULL,
-    OrderPrice DECIMAL(10, 2),
-    -- THE BELOW IS THE FOREIGN KEY IT DEFINES THE RELATIONSHIP BETWEEN THE TWO TABLES THE ABOVE ONE AND THIS ONE.
+    OrderPrice DECIMAL(10 ,2),
     FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
-    -- THIS TABLE I DON'T HAVE PRIMARY KEY
-    -- I WILL USE ALTER TO INSERT IT
 );
-GO
 
--- Alter table to add primary key after creation
 ALTER TABLE Orders
 ADD PRIMARY KEY (OrdersID);
-GO
 
 CREATE TABLE Orders_Items (
-    order_item_id INT IDENTITY (1, 1) PRIMARY KEY,
-    order_id INT NOT NULL,
-    order_date DATE NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES Orders (OrdersID)
+    Order_Item_ID INT IDENTITY(1, 1) PRIMARY KEY,
+    Order_ID INT NOT NULL,
+    Order_Date DATE NOT NULL,
+    FOREIGN KEY (Order_ID) REFERENCES Orders (OrdersID)
 );
-GO
-
--- Alter table to add additional columns and constraints
-ALTER TABLE Orders_Items
-ADD item_id INT NOT NULL;
-GO
 
 ALTER TABLE Orders_Items
-ADD quantity INT NOT NULL CHECK (quantity > 0);  -- Ensuring quantity is positive
-GO
+ADD Item_ID INT NOT NULL;
 
 ALTER TABLE Orders_Items
-ADD unit_price DECIMAL(10,2) NOT NULL;
-GO
+ADD Quantity INT NOT NULL CHECK (Quantity > 0);
 
--- Sample SELECT statement to retrieve all customers
-SELECT * FROM Customers;
-GO
-
--- Sample SELECT statement to retrieve all orders
-SELECT * FROM Orders;
-GO
-
--- Sample SELECT statement to retrieve all order items
-SELECT * FROM Orders_Items;
-GO
+ALTER TABLE Orders_Items
+ADD Unit_Price DECIMAL(10 ,2) NOT NULL;
