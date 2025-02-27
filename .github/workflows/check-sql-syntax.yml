@@ -31,6 +31,9 @@ jobs:
         run: |
           echo "[sqlfluff]" > .sqlfluff
           echo "dialect = tsql" >> .sqlfluff
+          echo "[sqlfluff:rules]" >> .sqlfluff
+          echo "max_line_length = 120" >> .sqlfluff
+          echo "capitalisation.identifiers = False" >> .sqlfluff
 
       # Step 5: Check SQL syntax in all .sql files
       - name: Check SQL syntax
