@@ -1,46 +1,28 @@
-CREATE DATABASE Store;
-
-USE Store;
-
--- THIS COMMAND CREATES TABLE
--- IT DEFINES THE DATABASE MEANING IT DEFINES DATA TYPES OF THE ATTRIBUTES AND
--- CONTRAINTS THAT MUST BE MET BY THE ENTITY OR BY THE TABLE
-CREATE TABLE Customers (
-    CustomerID INT IDENTITY(1, 1),
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    Email VARCHAR(50) NOT NULL UNIQUE,
-    City VARCHAR(50) NOT NULL,
-    PRIMARY KEY (CustomerID)
+CREATE TABLE Employee (
+    EmployeeID INT IDENTITY(1,1) PRIMARY KEY, 
+    FirstName VARCHAR(50) NOT NULL, 
+    LastName VARCHAR(50) NOT NULL, 
+    DateOfBirth DATE,
+    Email VARCHAR(100),
+    DepartmentID INT,
+    Salary DECIMAL(18,2)
 );
 
--- THIS IS THE SECOND TABLE WHICH IS THE CHILD OF THE CUSTOMER TABLE
--- THIS TABLE IS GOING HAVE A NEW KEY TYPE WHICH IS FOREIGN KEY THAT REFERENCES TO CUSTOMER TABLE,
--- REFERENCING USING CUSTOMERID THAT IS IN THE CUSTOMER TABLE
--- THIS TABLE MUST HAVE A ATTRIBUTE THAT IS GOING TO STORE THE PRIMARY KEY ITS PARENT WHICH IS THE CUSTOMER ID
-CREATE TABLE Orders (
-    OrdersID INT IDENTITY(1, 1),
-    CustomerID INT NOT NULL,
-    OrderDate DATE NOT NULL,
-    OrderPrice DECIMAL(10 ,2),
-    FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
+CREATE TABLE Department (
+    DepartmentID INT IDENTITY(1,1) PRIMARY KEY, 
+    DepartmentName VARCHAR(100) NOT NULL
 );
 
-ALTER TABLE Orders
-ADD PRIMARY KEY (OrdersID);
+-- Adding foreign key constraints
+ALTER TABLE Employee
+ADD CONSTRAINT FK_Department
+FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID);
 
-CREATE TABLE Orders_Items (
-    Order_Item_ID INT IDENTITY(1, 1) PRIMARY KEY,
-    Order_ID INT NOT NULL,
-    Order_Date DATE NOT NULL,
-    FOREIGN KEY (Order_ID) REFERENCES Orders (OrdersID)
-);
+-- Sample Data Insertion
+INSERT INTO Department (DepartmentName) 
+VALUES ('HR'), ('IT'), ('Finance');
 
-ALTER TABLE Orders_Items
-ADD Item_ID INT NOT NULL;
-
-ALTER TABLE Orders_Items
-ADD Quantity INT NOT NULL CHECK (Quantity > 0);
-
-ALTER TABLE Orders_Items
-ADD Unit_Price DECIMAL(10 ,2) NOT NULL;
+INSERT INTO Employee (FirstName, LastName, DateOfBirth, Email, DepartmentID, Salary) 
+VALUES ('John', 'Doe', '1980-05-15', 'john.doe@example.com', 1, 55000.00),
+       ('Jane', 'Smith', '1990-08-23', 'jane.smith@example.com', 2, 60000.00),
+       ('Jim', 'Brown', '1985-02-10', 'jim.brown@example.com', 3, 70000.00);
