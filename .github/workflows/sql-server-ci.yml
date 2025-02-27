@@ -8,7 +8,7 @@ on:
 
 jobs:
   sql-check:
-    runs-on: ubuntu-22.04  # Ensure you're using Ubuntu 22.04
+    runs-on: ubuntu-22.04 
 
     steps:
       - name: Checkout repository
@@ -37,7 +37,9 @@ jobs:
       - name: Start SQL Server
         run: |
           sudo systemctl start mssql-server
-          sleep 10 # Give SQL Server time to start
+          # Check if SQL Server started successfully
+          sudo systemctl status mssql-server --no-pager
+          sleep 10  # Give SQL Server time to start
 
       - name: Run SQL Scripts
         env:
@@ -45,5 +47,10 @@ jobs:
         run: |
           for file in *.sql; do
             echo "Running $file"
-            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i $file || echo "Syntax error in $file"
+            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i $file
+            # If the SQL script has errors, exit with non-zero status to fail the workflow
+            if [ $? -ne 0 ]; then
+              echo "SQL script $file failed"
+              exit 1
+            fi
           done
