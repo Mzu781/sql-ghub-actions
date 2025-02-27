@@ -47,7 +47,7 @@ jobs:
         run: |
           for file in *.sql; do
             echo "Running $file"
-            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i $file
+            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i "$file"
             # If the SQL script has errors, exit with non-zero status to fail the workflow
             if [ $? -ne 0 ]; then
               echo "SQL script $file failed"
