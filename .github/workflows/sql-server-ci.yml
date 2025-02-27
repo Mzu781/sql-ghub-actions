@@ -47,7 +47,8 @@ jobs:
         run: |
           for file in *.sql; do
             echo "Running $file"
-            sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i "$file"
+            # Explicitly use localhost and port 1433 for connection
+            sqlcmd -S localhost,1433 -U sa -P "$SA_PASSWORD" -d master -i "$file"
             # If the SQL script has errors, exit with non-zero status to fail the workflow
             if [ $? -ne 0 ]; then
               echo "SQL script $file failed"
