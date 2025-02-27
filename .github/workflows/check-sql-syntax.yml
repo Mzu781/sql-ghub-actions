@@ -1,0 +1,39 @@
+name: SQL Syntax Check
+
+# Trigger the workflow on push or pull request to the master branch
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  check-sql-syntax:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python (required for sqlfluff)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      # Step 3: Install sqlfluff (a SQL linter and syntax checker)
+      - name: Install sqlfluff
+        run: pip install sqlfluff
+
+      # Step 4: Create a .sqlfluff configuration file for T-SQL
+      - name: Configure sqlfluff for T-SQL
+        run: |
+          echo "[sqlfluff]" > .sqlfluff
+          echo "dialect = tsql" >> .sqlfluff
+
+      # Step 5: Check SQL syntax in all .sql files
+      - name: Check SQL syntax
+        run: |
+          # Run sqlfluff on all .sql files in the repository
+          sqlfluff lint .
