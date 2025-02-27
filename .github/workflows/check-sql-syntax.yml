@@ -1,3 +1,12 @@
+name: SQL Syntax Check
+
+# Trigger the workflow on push or pull request to the master branch
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
 jobs:
   check-sql-syntax:
     runs-on: ubuntu-latest
